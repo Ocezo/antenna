@@ -4,20 +4,18 @@ Arduino/PlatformIO project for driving an antenna mount with stepper motors.
 
 The project goal is to control antenna azimuth and elevation with two stepper
 motors, each driven by a TMC2209 driver. The current firmware in `src/main.cpp`
-is a safe single-motor test program: it drives one TMC2209 in STEP/DIR mode,
-moves the motor from position `0` to `4000` steps, then returns to `0` in a
-loop.
+is a safe two-motor test program: it drives both TMC2209s in STEP/DIR mode,
+moves each motor to a target position, then returns to `0` in a loop.
 
 ## Hardware Target
 
 - Arduino Uno
-- 1 stepper motor currently tested
-- 1 TMC2209 stepper driver currently tested
-- Future target: 2 stepper motors and 2 TMC2209 drivers for azimuth/elevation
+- 2 stepper motors (stepper1 = elevation, stepper2 = azimuth)
+- 2 TMC2209 stepper drivers
 
-## Current Pinout
+## Pinout
 
-The current firmware uses one driver:
+### stepper1 — Elevation
 
 | Signal | Arduino Uno Pin |
 | --- | --- |
@@ -25,22 +23,33 @@ The current firmware uses one driver:
 | STEP | `3` |
 | ENABLE | `4` |
 
-`ENABLE` is driven `LOW` in `setup()` to enable the TMC2209 driver.
+### stepper2 — Azimuth
+
+| Signal | Arduino Uno Pin |
+| --- | --- |
+| DIR | `7` |
+| STEP | `6` |
+| ENABLE | `5` |
+
+`ENABLE` est mis à `LOW` dans `setup()` pour activer chaque driver TMC2209.
 
 ## Current Firmware Behavior
 
 On boot, the Arduino:
 
-1. Enables the stepper driver.
+1. Enables both stepper drivers.
 2. Starts the serial port at `9600` baud.
-3. Configures AccelStepper with:
+3. Configures stepper1 (elevation) with:
    - Max speed: `1000` steps/second
    - Acceleration: `500` steps/second^2
-4. Resets the current motor position to `0`.
-5. Repeatedly:
-   - Moves to `4000` steps.
+4. Configures stepper2 (azimuth) with:
+   - Max speed: `300` steps/second
+   - Acceleration: `100` steps/second^2
+5. Resets both motor positions to `0`.
+6. Repeatedly:
+   - Moves stepper1 to `4000` steps, then waits for stepper2 to reach `200` steps.
    - Waits 1 second.
-   - Moves back to `0`.
+   - Returns stepper1 to `0`, then returns stepper2 to `0`.
    - Waits 1 second.
 
 Serial messages are printed during each movement so the behavior can be checked
@@ -95,7 +104,5 @@ pio device monitor -b 9600
 
 ## Roadmap
 
-- Add the second TMC2209 driver.
-- Add a second AccelStepper instance.
-- Assign dedicated STEP/DIR/ENABLE pins for azimuth and elevation.
-- Replace the current back-and-forth test loop with antenna positioning logic.
+- Replace the current back-and-forth test loop with real antenna positioning logic.
+- Drive both motors concurrently (non-blocking `run()` calls) instead of sequentially.
