@@ -1,23 +1,19 @@
 #include <Arduino.h>
 #include <AccelStepper.h>
 
-#define DIR_PIN1 2
-#define STEP_PIN1 3
-#define ENABLE_PIN1 4
-
-#define DIR_PIN2 7
-#define STEP_PIN2 6
-#define ENABLE_PIN2 5
+#define ENABLE_PIN 8  // 8
+#define STEPX_PIN 2   // 2
+#define STEPY_PIN 3   // 3
+#define DIRX_PIN 5    // 5
+#define DIRY_PIN 6    // 6
 
 // Driver mode (STEP + DIR)
-AccelStepper stepper1(AccelStepper::DRIVER, STEP_PIN1, DIR_PIN1);
-AccelStepper stepper2(AccelStepper::DRIVER, STEP_PIN2, DIR_PIN2);
+AccelStepper stepper1(AccelStepper::DRIVER, STEPX_PIN, DIRX_PIN);
+AccelStepper stepper2(AccelStepper::DRIVER, STEPY_PIN, DIRY_PIN);
 
 void setup() {
-  pinMode(ENABLE_PIN1, OUTPUT);
-  digitalWrite(ENABLE_PIN1, LOW); // Enable driver
-  pinMode(ENABLE_PIN2, OUTPUT);
-  digitalWrite(ENABLE_PIN2, LOW); // Enable driver
+  pinMode(ENABLE_PIN, OUTPUT);
+  digitalWrite(ENABLE_PIN, LOW); // Enable driver
 
   Serial.begin(9600);
   delay(1000);
